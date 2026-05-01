@@ -421,8 +421,6 @@ jobs:
               }
             }
 
-            await ensureLabel("needs info", "D4C5F9", "More reporter information is needed");
-            await ensureLabel("pebkac", "F9D0C4", "Clear user-side/docs-reading issue");
             const labelsToAdd = [];
             const obviousUserErrorClasses = new Set([
               "old_script_version",
@@ -437,6 +435,12 @@ jobs:
             if (!labelsToAdd.length) {
               core.info("No labels needed for this advice category.");
             } else {
+              if (labelsToAdd.includes("needs info")) {
+                await ensureLabel("needs info", "D4C5F9", "More reporter information is needed");
+              }
+              if (labelsToAdd.includes("pebkac")) {
+                await ensureLabel("pebkac", "F9D0C4", "Clear user-side/docs-reading issue");
+              }
               await github.rest.issues.addLabels({ owner, repo, issue_number: issue.number, labels: labelsToAdd });
             }
 
@@ -447,7 +451,7 @@ jobs:
             const body = [
               ...commentsByClass[result.classification],
               "",
-              `_Local AI triage classified this as \`${result.classification}\` with confidence ${confidence}. This workflow only comments/labels; it does not train, fine-tune, retain issue text, open PRs, edit code, or use a paid AI API._`,
+              `_Local AI triage classified this as \`${result.classification}\` with confidence ${confidence}._`,
               reason,
               "",
               marker
