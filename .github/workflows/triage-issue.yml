@@ -111,7 +111,7 @@ jobs:
             // Desired labels from rules
             const desired = new Set();
             if (!templateOK || missingTitle) desired.add("invalid");
-            if (versionLower === "beta release") desired.add("beta version");
+            if (versionLower === "other beta release") desired.add("beta version");
             if (versionLower === "other / unsure") desired.add("version unclear");
             if (googledLower === "no") desired.add("didnt search errors");
 
@@ -167,14 +167,14 @@ jobs:
                 ]);
               }
             } else {
-              if (versionLower === "beta release") {
+              if (versionLower === "other beta release") {
                 sections.push([
                   "Thanks for the report!",
                   "",
                   "We noticed your **Zorin OS version** is:",
                   `> ${version}`,
                   "",
-                  "Behavior on beta releases can differ from stable. Please verify on the latest **stable** (e.g., `17.3 Core`) if possible and update this issue with results."
+                  "Behavior on beta releases can differ from stable. Please verify on the latest **stable** (e.g., `18.1 Core`) if possible and update this issue with results."
                 ]);
               }
               if (versionLower === "other / unsure") {
@@ -210,3 +210,17 @@ jobs:
             );
 
             await upsertStatusComment(block);
+
+      - name: Prepare AI triage handoff
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/triage-handoff"
+          printf '{"issue_number":%s}\n' '${{ github.event.issue.number }}' > "$RUNNER_TEMP/triage-handoff/issue.json"
+
+      - name: Upload AI triage handoff
+        uses: actions/upload-artifact@v5
+        with:
+          name: triage-issue-context
+          path: ${{ runner.temp }}/triage-handoff/issue.json
+          retention-days: 1
